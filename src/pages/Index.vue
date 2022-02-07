@@ -1,92 +1,110 @@
 <template>
   <Layout>
+    <header
+      class="masthead"
+      :style="{'background-image': `url(http://101.35.2.170:1337${$page.allStrapiInfo.edges[0].node.homeBgc.url})`}"
+    >
+      <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+          <div class="col-md-10 col-lg-8 col-xl-7">
+            <div class="site-heading">
+              <h1>{{ $page.allStrapiInfo.edges[0].node.title }}</h1>
+              <span class="subheading">{{ $page.allStrapiInfo.edges[0].node.description }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
     <div class="container px-4 px-lg-5">
       <div class="row gx-4 gx-lg-5 justify-content-center">
         <div class="col-md-10 col-lg-8 col-xl-7">
           <!-- Post preview-->
-          <div class="post-preview">
-            <a href="post.html">
+          <div 
+            class="post-preview"
+            v-for="(item, index) in $page.post.edges"
+            :key="item.node.id">
+            <g-link :to="`post/${item.node.id}`">
               <h2 class="post-title">
-                Man must explore, and this is exploration at its greatest
+                {{ item.node.title }}
               </h2>
               <h3 class="post-subtitle">
-                Problems look mighty small from 150 miles up
+                {{ item.node.description }}
               </h3>
-            </a>
+            </g-link>
             <p class="post-meta">
               Posted by
-              <a href="#!">Start Bootstrap</a>
-              on September 24, 2021
+              <g-link to="/contact">{{ item.node.create_by }}</g-link>
+              {{  item.node.created_at | dateFormat }}
             </p>
-          </div>
-          <!-- Divider-->
-          <hr class="my-4" />
-          <!-- Post preview-->
-          <div class="post-preview">
-            <a href="post.html"
-              ><h2 class="post-title">
-                I believe every human has a finite number of heartbeats. I don't
-                intend to waste any of mine.
-              </h2></a
-            >
-            <p class="post-meta">
-              Posted by
-              <a href="#!">Start Bootstrap</a>
-              on September 18, 2021
+            <p>
+              <span v-for="tag in item.node.tags" :key="tag.id" class="tag-item">
+                <g-link :to="`/tag/${tag.id}`">{{ tag.title }}</g-link>
+              </span>
             </p>
+            <!-- Divider-->
+            <hr v-if=" index < $page.post.edges.length - 1" class="my-4" />
           </div>
-          <!-- Divider-->
-          <hr class="my-4" />
-          <!-- Post preview-->
-          <div class="post-preview">
-            <a href="post.html">
-              <h2 class="post-title">Science has not yet mastered prophecy</h2>
-              <h3 class="post-subtitle">
-                We predict too much for the next year and yet far too little for
-                the next ten.
-              </h3>
-            </a>
-            <p class="post-meta">
-              Posted by
-              <a href="#!">Start Bootstrap</a>
-              on August 24, 2021
-            </p>
-          </div>
-          <!-- Divider-->
-          <hr class="my-4" />
-          <!-- Post preview-->
-          <div class="post-preview">
-            <a href="post.html">
-              <h2 class="post-title">Failure is not an option</h2>
-              <h3 class="post-subtitle">
-                Many say exploration is part of our destiny, but it’s actually
-                our duty to future generations.
-              </h3>
-            </a>
-            <p class="post-meta">
-              Posted by
-              <a href="#!">Start Bootstrap</a>
-              on July 8, 2021
-            </p>
-          </div>
-          <!-- Divider-->
-          <hr class="my-4" />
-          <!-- Pager-->
-          <div class="d-flex justify-content-end mb-4">
-            <a class="btn btn-primary text-uppercase" href="#!"
-              >Older Posts →</a
-            >
-          </div>
+          <Pager class="pager" :info="$page.post.pageInfo"/>
         </div>
       </div>
     </div>
   </Layout>
 </template>
 
+<page-query>
+query($page: Int) {
+  post: allStrapiPost(perPage: 2, page: $page) @paginate {
+    pageInfo {
+      totalPages
+      currentPage
+    }
+    edges {
+      node {
+        id
+        title
+        description
+        created_at
+        create_by
+        tags {
+          id
+          title
+        }
+      }
+    }
+  }
+  allStrapiInfo {
+    edges {
+      node {
+        title
+        description
+        homeBgc {
+          url
+        }
+      }
+    }
+  }
+}
+</page-query>
+
 <script>
+import { Pager } from 'gridsome'
+
 export default {
-  
+  name: 'Index',
+  components: {
+    Pager
+  }
 };
 </script>
 
-<style></style>
+<style>
+.active--exact {
+  color: #0085A1;
+}
+.pager a {
+  padding-right: 12px;
+}
+.tag-item {
+  padding-right: 12px;
+}
+</style>

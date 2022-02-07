@@ -1,5 +1,20 @@
 <template>
   <Layout>
+    <header
+      class="masthead"
+      :style="{'background-image': `url(http://101.35.2.170:1337${$page.allStrapiInfo.edges[0].node.contactBgc.url})`}"
+    >
+      <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+          <div class="col-md-10 col-lg-8 col-xl-7">
+            <div class="site-heading">
+              <h1>Contact Me</h1>
+              <span class="subheading">Have question? I have answers.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
     <main class="mb-4">
       <div class="container px-4 px-lg-5">
         <div class="row gx-4 gx-lg-5 justify-content-center">
@@ -24,6 +39,7 @@
                     type="text"
                     placeholder="Enter your name..."
                     data-sb-validations="required"
+                    v-model="form.name"
                   />
                   <label for="name">Name</label>
                   <div
@@ -40,6 +56,7 @@
                     type="email"
                     placeholder="Enter your email..."
                     data-sb-validations="required,email"
+                    v-model="form.email"
                   />
                   <label for="email">Email address</label>
                   <div
@@ -59,6 +76,7 @@
                     type="tel"
                     placeholder="Enter your phone number..."
                     data-sb-validations="required"
+                    v-model="form.phone"
                   />
                   <label for="phone">Phone Number</label>
                   <div
@@ -75,6 +93,7 @@
                     placeholder="Enter your message here..."
                     style="height: 12rem"
                     data-sb-validations="required"
+                    v-model="form.message"
                   ></textarea>
                   <label for="message">Message</label>
                   <div
@@ -110,9 +129,10 @@
                 </div>
                 <!-- Submit Button-->
                 <button
-                  class="btn btn-primary text-uppercase disabled"
+                  class="btn btn-primary text-uppercase"
                   id="submitButton"
-                  type="submit"
+                  type="button"
+                  @click="handleSubmit"
                 >
                   Send
                 </button>
@@ -125,8 +145,82 @@
   </Layout>
 </template>
 
+<page-query>
+query {
+  allStrapiInfo {
+    edges {
+      node {
+        title
+        description
+        contactBgc {
+          url
+        }
+      }
+    }
+  }
+}
+</page-query>
+
 <script>
-export default {};
+import axios from 'axios'
+export default {
+  name: 'Contact',
+  data() {
+    return {
+      form: {
+        name: '',
+        email: '',
+        phone: '',
+        message: ''
+      }
+    }
+  },
+  methods: {
+    isEmpty(val) {
+      return val === ''
+    },
+    async handleSubmit() {
+      let valid = true
+      for (let key in this.form) {
+        if (this.isEmpty(this.form[key])) {
+          window.alert(`${key}不能为空~`)
+          valid = false
+          return
+        }
+      }
+      if (!valid) {
+        return
+      }
+      let regEmail = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/
+      if (!regEmail.test(this.form.email)) {
+        window.alert(`邮箱格式不正确~`)
+        return
+      }
+      let regPhone = /^[1][3,4,5,7,8,9][0-9]{9}$/
+      if (!regPhone.test(this.form.phone)) {
+        window.alert(`手机号格式不正确~`)
+        return
+      }
+      console.log(this.form)
+      try {
+        await axios({
+          method: 'post',
+          url: 'http://101.35.2.170:1337/contacts',
+          data: this.form
+        })
+        window.alert('发送成功~')
+        this.form = {
+          name: '',
+          email: '',
+          phone: '',
+          message: ''
+        }
+      } catch (err) {
+        window.alert('发送失败~')
+      }
+    }
+  }
+};
 </script>
 
 <style></style>
