@@ -2,7 +2,7 @@
   <Layout>
     <header
       class="masthead"
-      style="background-image: url('assets/img/home-bg.jpg')"
+      :style="{'background-image': `url(http://101.35.2.170:1337${$page.allStrapiInfo.edges[0].node.tagsBgc.url})`}"
     >
       <div class="container position-relative px-4 px-lg-5">
         <div class="row gx-4 gx-lg-5 justify-content-center">
@@ -56,6 +56,15 @@ query($id: ID!) {
       created_at
       create_by
       
+    }
+  },
+  allStrapiInfo {
+    edges {
+      node {
+        tagsBgc {
+          url
+        }
+      }
     }
   }
 }
